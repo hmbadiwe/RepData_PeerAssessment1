@@ -7,15 +7,37 @@ output:
 
 
 ## Loading and preprocessing the data
+```{r}
+library(ggplot2)
+unzip('activity.zip')
+activity_frame <- read.csv('activity.csv')
+valid_rows <- !is.na( activity_frame$steps )
+activity_frame_complete <- activity_frame[valid_rows,]
+```
 
 
+## What is the mean total number of steps taken per day?
+```{r}
+aggregate_steps.sum <- aggregate( steps ~ date, activity_frame_complete, sum )
+aggregate_steps.mean <- mean( aggregate_steps.sum$steps )
+aggregate_steps.median <- median( aggregate_steps.sum$steps )
 
-## What is mean total number of steps taken per day?
+hist_agg <- ggplot( aggregate_steps.sum, aes(steps)) + geom_histogram(aes(fill = ..count..), binwidth=1000) +
+scale_fill_gradient("Count", low = "yellow", high = "red") +
+labs( title = paste("mean = ", aggregate_steps.mean, " median = ", aggregate_steps.median ) )
 
+hist_agg
+
+```
 
 
 ## What is the average daily activity pattern?
-
+```{r}
+activity_ts <- ts( activity_frame_complete$interval, start = c(2012,10) )
+highest_number_steps <- activity_frame_complete[activity_frame_complete$steps == max( activity_frame_complete$steps ), ]
+activity_plot.title <- paste( "The max number of steps is ", highest_number_steps$steps," occured at ", highest_number_steps$date, ", interval ", highest_number_steps$interval, sep = "")
+plot( activity_frame_complete$interval, activity_frame_complete$steps, type = "l", xlab = "Time Series", ylab="Number of Steps", col="blue", main  = activity_plot.title)
+```
 
 
 ## Imputing missing values
