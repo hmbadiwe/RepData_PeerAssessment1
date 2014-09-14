@@ -1,20 +1,27 @@
 library(ggplot2)
 unzip('activity.zip')
 
-activity_frame_complete <- read.csv('activity.csv')
-valid_rows <- !is.na( activity_frame_complete$steps )
-activity_frame <- activity_frame_complete[valid_rows,]
 
-aggregate_steps.sum <- aggregate( steps ~ date, activity_frame, sum )
-aggregate_steps.mean <- aggregate( steps ~ date, activity_frame, mean)
-mean_aggregate_steps <- mean( aggregate_steps.sum$steps)
-median_aggregate_steps <- median( aggregate_steps.sum$steps )
 
-hist_agg <- ggplot( aggregate_steps.sum, aes(steps)) + geom_histogram(aes(fill = ..count..), binwidth=1000) +
-  scale_fill_gradient("Count", low = "yellow", high = "red") +
-  labs( title = paste("mean = ", mean_aggregate_steps, " median = ", median_aggregate_steps ) )
+generate_histogram <- function(agg_sum){
+  mean_aggregate_steps <- mean( agg_sum$steps)
+  median_aggregate_steps <- median( agg_sum$steps )
+  ggplot( agg_sum, aes(steps)) + geom_histogram(aes(fill = ..count..), binwidth=1000) +
+    scale_fill_gradient("Count", low = "yellow", high = "red") +
+    labs( title = paste("mean = ", mean_aggregate_steps, " median = ", median_aggregate_steps ) )  
+}
 
-activity_ts <- ts( activity_frame$interval, start = c(2012,10) )
-highest_number_steps <- activity_frame[activity_frame$steps == max( activity_frame$steps ), ]
-activity_plot.title <- paste( "The max number of steps is ", highest_number_steps$steps," occured at ", highest_number_steps$date, ", interval ", highest_number_steps$interval, sep = "")
+fill_in_blanks <- function(total_frame, interval_frame){
+  index <- 1
+  while( index <= length(total_frame$steps ) ){
+    if( is.na(total_frame$steps[index])){
+      step_from_int_row <- interval_frame[aggregate_steps.mean_by_interval$interval == total_frame$interval[index],]
+      step_from_int <- round( step_from_int_row[, 2] )
+      total_frame$steps[index] <- step_from_int
+    }
+    index <- index + 1
+  }
+  total_frame
+}
+
 
