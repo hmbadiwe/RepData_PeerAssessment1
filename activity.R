@@ -1,4 +1,5 @@
 library(ggplot2)
+library(lattice)
 unzip('activity.zip')
 
 
@@ -23,5 +24,14 @@ fill_in_blanks <- function(total_frame, interval_frame){
   }
   total_frame
 }
+convert_to_date_factor <- function(date){
+  week_days_list <- c ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+  week_ends_list <- c ("Saturday", "Sunday")
+  day <- weekdays( as.Date( date ) )
+  day_boolean <- day %in% week_days_list
+  factor( day_boolean, levels=c(TRUE,FALSE), labels=c("weekday", "weekend"))
+}
+
+
 
 
